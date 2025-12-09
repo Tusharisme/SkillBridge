@@ -1,18 +1,33 @@
+<script setup>
+import { ref } from 'vue'
+import { useAuthStore } from '../stores/auth'
+
+const authStore = useAuthStore()
+const fullName = ref('')
+const email = ref('')
+const password = ref('')
+
+const handleRegister = () => {
+  authStore.register(email.value, password.value, fullName.value)
+}
+</script>
+
 <template>
   <div class="auth-container">
     <h1>Register</h1>
-    <form @submit.prevent>
+    <form @submit.prevent="handleRegister">
+      <div v-if="authStore.authError" class="error-msg">{{ authStore.authError }}</div>
       <div class="form-group">
         <label>Full Name</label>
-        <input type="text" placeholder="John Doe" />
+        <input v-model="fullName" type="text" placeholder="John Doe" required />
       </div>
       <div class="form-group">
         <label>Email</label>
-        <input type="email" placeholder="email@example.com" />
+        <input v-model="email" type="email" placeholder="email@example.com" required />
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" placeholder="********" />
+        <input v-model="password" type="password" placeholder="********" required />
       </div>
       <button type="submit">Sign Up</button>
     </form>
