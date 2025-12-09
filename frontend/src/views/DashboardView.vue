@@ -1,13 +1,15 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useSkillStore } from '../stores/skills'
 import { useAuthStore } from '../stores/auth'
 
 const skillStore = useSkillStore()
 const authStore = useAuthStore()
+const bookings = ref({ as_student: [], as_instructor: [] })
 
-onMounted(() => {
-  skillStore.fetchDashboard()
+onMounted(async () => {
+  await skillStore.fetchDashboard()
+  bookings.value = await skillStore.fetchBookings()
 })
 </script>
 
@@ -21,7 +23,7 @@ onMounted(() => {
     <div v-if="skillStore.loading" class="loading">Loading dashboard...</div>
 
     <div v-else class="dashboard-content">
-      <section class="my-skills">
+      <section class="section-block">
         <h2>My Skills</h2>
         <div v-if="skillStore.dashboardData?.my_skills?.length === 0" class="empty-state">
           <p>You haven't listed any skills yet.</p>
@@ -38,6 +40,30 @@ onMounted(() => {
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="section-block">
+        <h2>My Bookings (As Student)</h2>
+        <div v-if="bookings.as_student.length === 0" class="empty-state">
+          <p>No active bookings.</p>
+        </div>
+        <ul v-else class="booking-list">
+          <li v-for="booking in bookings.as_student" :key="booking.id">
+            <strong>{{ booking.skill_name }}</strong> - {{ booking.status }} ({{ new Date(booking.created_at).toLocaleDateString() }})
+          </li>
+        </ul>
+      </section>
+
+      <section class="section-block">
+        <h2>Booking Requests (As Instructor)</h2>
+        <div v-if="bookings.as_instructor.length === 0" class="empty-state">
+          <p>No booking requests received.</p>
+        </div>
+        <ul v-else class="booking-list">
+          <li v-for="booking in bookings.as_instructor" :key="booking.id">
+            Request from <strong>{{ booking.student_name }}</strong> for <strong>{{ booking.skill_name }}</strong> - {{ booking.status }}
+          </li>
+        </ul>
       </section>
     </div>
   </div>
@@ -104,5 +130,30 @@ button.delete {
   color: red;
   border-color: #ffdce0;
   background: #fff5f5;
+}
+
+.section-block {
+  margin-bottom: 2rem;
+}
+
+.section-block h2 {
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+.booking-list {
+  list-style: none;
+  padding: 0;
+}
+
+.booking-list li {
+  padding: 1rem;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
 }
 </style>

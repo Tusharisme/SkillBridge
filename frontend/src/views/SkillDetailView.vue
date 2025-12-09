@@ -2,13 +2,25 @@
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSkillStore } from '../stores/skills'
+import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const skillStore = useSkillStore()
+const authStore = useAuthStore()
 
 onMounted(() => {
   skillStore.fetchSkill(route.params.id)
 })
+
+const handleBooking = () => {
+  if (!authStore.isAuthenticated) {
+    alert('Please login to book a session')
+    return
+  }
+  if (confirm('Are you sure you want to book this session?')) {
+    skillStore.bookSkill(skillStore.currentSkill.id)
+  }
+}
 </script>
 
 <template>
@@ -37,7 +49,7 @@ onMounted(() => {
           <div class="action-card">
             <h3>Interested?</h3>
             <p>Book a session with the instructor to start learning.</p>
-            <button class="btn-book">Book Session</button>
+            <button @click="handleBooking" class="btn-book">Book Session</button>
           </div>
         </div>
       </div>

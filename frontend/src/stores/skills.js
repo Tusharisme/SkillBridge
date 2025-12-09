@@ -59,6 +59,26 @@ export const useSkillStore = defineStore('skills', {
       } finally {
         this.loading = false
       }
+    },
+
+    async bookSkill(skillId) {
+      try {
+        await axios.post(`${API_URL}/bookings`, { skill_id: skillId })
+        alert('Booking request sent successfully!')
+        router.push('/dashboard')
+      } catch (err) {
+        alert(err.response?.data?.error || 'Failed to book session')
+      }
+    },
+
+    async fetchBookings() {
+      try {
+        const response = await axios.get(`${API_URL}/my-bookings`)
+        return response.data
+      } catch (err) {
+        console.error('Failed to fetch bookings')
+        return { as_student: [], as_instructor: [] }
+      }
     }
   }
 })
