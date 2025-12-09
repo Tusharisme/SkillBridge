@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import router from '../router'
 
-const API_URL = 'http://localhost:5000/api'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api'
 
 export const useSkillStore = defineStore('skills', {
   state: () => ({
