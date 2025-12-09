@@ -123,6 +123,11 @@ def create_app(config_name='default'):
 
 
 
+    return app
+
+
+# Create the application instance for Gunicorn
+app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+
 if __name__ == '__main__':
-    app = create_app(os.getenv('FLASK_CONFIG') or 'default')
     app.run(port=5000)
