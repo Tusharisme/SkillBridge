@@ -35,8 +35,8 @@ onMounted(async () => {
               <p>{{ skill.description }}</p>
             </div>
             <div class="skill-actions">
-              <button>Edit</button>
-              <button class="delete">Delete</button>
+              <router-link :to="`/skills/${skill.id}/edit`" class="btn-edit">Edit</router-link>
+              <button @click="skillStore.deleteSkill(skill.id)" class="delete">Delete</button>
             </div>
           </div>
         </div>
@@ -130,6 +130,20 @@ button.delete {
   color: red;
   border-color: #ffdce0;
   background: #fff5f5;
+}
+
+.btn-edit {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.btn-edit:hover {
+  background: #f9f9f9;
 }
 
 .section-block {

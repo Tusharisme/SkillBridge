@@ -19,6 +19,7 @@ const authStore = useAuthStore()
           </template>
           
           <template v-else>
+            <RouterLink to="/skills/create">Teach</RouterLink>
             <RouterLink to="/dashboard">Dashboard</RouterLink>
             <button @click="authStore.logout()" class="btn-logout">Logout</button>
           </template>
