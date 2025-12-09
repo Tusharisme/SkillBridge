@@ -1,5 +1,8 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuthStore } from './stores/auth'
+
+const authStore = useAuthStore()
 </script>
 
 <template>
@@ -10,7 +13,15 @@ import { RouterLink, RouterView } from 'vue-router'
         <div class="nav-links">
           <RouterLink to="/">Home</RouterLink>
           <RouterLink to="/about">About</RouterLink>
-          <RouterLink to="/login" class="btn-login">Login</RouterLink>
+          
+          <template v-if="!authStore.isAuthenticated">
+            <RouterLink to="/login" class="btn-login">Login</RouterLink>
+          </template>
+          
+          <template v-else>
+            <RouterLink to="/dashboard">Dashboard</RouterLink>
+            <button @click="authStore.logout()" class="btn-logout">Logout</button>
+          </template>
         </div>
       </nav>
     </div>
@@ -73,5 +84,18 @@ nav {
 
 .btn-login:hover {
   background-color: var(--color-primary-dark);
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.btn-logout:hover {
+  color: var(--color-primary);
 }
 </style>
