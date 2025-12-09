@@ -40,6 +40,12 @@ const router = createRouter({
       path: '/skills/:id',
       name: 'skill-detail',
       component: () => import('../views/SkillDetailView.vue')
+    },
+    {
+      path: '/skills/:id/edit',
+      name: 'edit-skill',
+      component: () => import('../views/EditSkillView.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })

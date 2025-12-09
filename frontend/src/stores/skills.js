@@ -49,6 +49,33 @@ export const useSkillStore = defineStore('skills', {
       }
     },
     
+    async updateSkill(id, skillData) {
+      this.loading = true
+      try {
+        await axios.put(`${API_URL}/skills/${id}`, skillData)
+        router.push('/dashboard')
+      } catch (err) {
+        this.error = 'Failed to update skill'
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async deleteSkill(id) {
+      if (!confirm('Are you sure you want to delete this skill?')) return
+      
+      this.loading = true
+      try {
+        await axios.delete(`${API_URL}/skills/${id}`)
+        // Refresh dashboard
+        await this.fetchDashboard()
+      } catch (err) {
+        alert('Failed to delete skill')
+      } finally {
+        this.loading = false
+      }
+    },
+
     async fetchDashboard() {
       this.loading = true
       try {
