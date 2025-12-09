@@ -37,6 +37,37 @@ def create_app(config_name='default'):
     def health_check():
         return jsonify({"status": "healthy"})
 
+    @app.route('/api/login', methods=['POST'])
+    def api_login():
+        from flask_security import verify_password, login_user
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        
+        user = user_datastore.find_user(email=email)
+        
+        if not user:
+             return jsonify({"response": {"errors": ["User not found"]}}), 404
+             
+        if verify_password(password, user.password):
+            if not user.active:
+                 return jsonify({"response": {"errors": ["Account disabled"]}}), 400
+                 
+            token = user.get_auth_token()
+            
+            return jsonify({
+                "response": {
+                    "user": {
+                        "id": user.id,
+                        "email": user.email,
+                        "full_name": user.full_name,
+                        "authentication_token": token
+                    }
+                }
+            })
+        
+        return jsonify({"response": {"errors": ["Invalid password"]}}), 400
+
     # --- Skill API Endpoints ---
 
     @app.route('/api/skills', methods=['GET'])

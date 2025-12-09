@@ -24,9 +24,14 @@ export const useAuthStore = defineStore('auth', {
           headers: { 'Content-Type': 'application/json' }
         })
         
-        // Flask-Security returns proper JSON with auth_token
-        const token = response.data.response.user.authentication_token
-        const user = response.data.response.user
+        // Custom API returns response.user.authentication_token
+        const data = response.data.response
+        const token = data.user.authentication_token
+        const user = data.user
+        
+        if (!token || token === 'undefined' || token === 'null') {
+             throw new Error("Invalid token received from server")
+        }
         
         this.token = token
         this.user = user
@@ -38,7 +43,7 @@ export const useAuthStore = defineStore('auth', {
         
         router.push('/')
       } catch (error) {
-        this.authError = error.response?.data?.response?.errors?.[0] || 'Login failed'
+        this.authError = error.response?.data?.response?.errors?.[0] || error.message || 'Login failed'
         console.error("Login Error:", error)
       }
     },
