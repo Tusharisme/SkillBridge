@@ -53,6 +53,12 @@ def create_app(config_name='default'):
             if not user.active:
                  return jsonify({"response": {"errors": ["Account disabled"]}}), 400
                  
+            # Self-healing: Ensure fs_uniquifier exists
+            if not user.fs_uniquifier:
+                import uuid
+                user.fs_uniquifier = str(uuid.uuid4())
+                db.session.commit()
+                
             token = user.get_auth_token()
             
             return jsonify({
