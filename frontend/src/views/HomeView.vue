@@ -1,11 +1,12 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { useSkillStore } from '../stores/skills'
 
-const featuredSkills = ref([
-  { id: 1, title: 'Learn Python', instructor: 'Alice', image: 'https://via.placeholder.com/300x200?text=Python' },
-  { id: 2, title: 'Master Vue.js', instructor: 'Bob', image: 'https://via.placeholder.com/300x200?text=Vue.js' },
-  { id: 3, title: 'Digital Marketing', instructor: 'Charlie', image: 'https://via.placeholder.com/300x200?text=Marketing' },
-])
+const skillStore = useSkillStore()
+
+onMounted(() => {
+  skillStore.fetchSkills()
+})
 </script>
 
 <template>
@@ -17,14 +18,18 @@ const featuredSkills = ref([
     </section>
 
     <section class="featured">
-      <h2>Featured Skills</h2>
-      <div class="skills-grid">
-        <div v-for="skill in featuredSkills" :key="skill.id" class="skill-card">
-          <img :src="skill.image" :alt="skill.title" />
+      <h2>Explore Skills</h2>
+       <div v-if="skillStore.loading" class="loading">Loading skills...</div>
+       <div v-else-if="skillStore.skills.length === 0" class="empty">No skills found. Be the first to teach one!</div>
+      
+      <div v-else class="skills-grid">
+        <div v-for="skill in skillStore.skills" :key="skill.id" class="skill-card">
+          <!-- Placeholder image for now, or add random gradient -->
+          <div class="card-image-placeholder"></div>
           <div class="card-content">
-            <h3>{{ skill.title }}</h3>
+            <h3>{{ skill.name }}</h3>
             <p>by {{ skill.instructor }}</p>
-            <button>View Details</button>
+            <router-link :to="'/skills/' + skill.id" class="btn-details">View Details</router-link>
           </div>
         </div>
       </div>
@@ -98,10 +103,10 @@ const featuredSkills = ref([
   box-shadow: 0 10px 15px rgba(0,0,0,0.1);
 }
 
-.skill-card img {
+.card-image-placeholder {
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
 }
 
 .card-content {
@@ -113,7 +118,8 @@ const featuredSkills = ref([
   margin-bottom: 0.5rem;
 }
 
-.card-content button {
+.btn-details {
+  display: inline-block;
   margin-top: 1rem;
   width: 100%;
   padding: 0.5rem;
@@ -121,11 +127,12 @@ const featuredSkills = ref([
   color: var(--color-primary);
   background: transparent;
   border-radius: 6px;
-  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
   font-weight: 600;
 }
 
-.card-content button:hover {
+.btn-details:hover {
   background: var(--color-primary);
   color: white;
 }

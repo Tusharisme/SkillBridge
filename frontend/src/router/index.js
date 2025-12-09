@@ -35,6 +35,11 @@ const router = createRouter({
       name: 'create-skill',
       component: () => import('../views/CreateSkillView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/skills/:id',
+      name: 'skill-detail',
+      component: () => import('../views/SkillDetailView.vue')
     }
   ]
 })
