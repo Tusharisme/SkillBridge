@@ -68,6 +68,22 @@ def create_app(config_name='default'):
         
         return jsonify({"response": {"errors": ["Invalid password"]}}), 400
 
+    @app.route('/api/debug')
+    def debug_users():
+        from models import User
+        users = User.query.all()
+        result = []
+        for u in users:
+            result.append({
+                "id": u.id,
+                "email": u.email,
+                "active": u.active,
+                "has_uniquifier_attr": hasattr(u, 'fs_uniquifier'),
+                "uniquifier_value": getattr(u, 'fs_uniquifier', 'MISSING'),
+                "auth_token": u.get_auth_token()
+            })
+        return jsonify(result)
+
     # --- Skill API Endpoints ---
 
     @app.route('/api/skills', methods=['GET'])
