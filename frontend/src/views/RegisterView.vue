@@ -84,9 +84,13 @@ button:hover {
   background-color: var(--color-primary-dark);
 }
 
-p {
+.error-msg {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 0.75rem;
+  border-radius: 4px;
   text-align: center;
-  margin-top: 1rem;
-  font-size: 0.9rem;
+  margin-bottom: 1rem;
 }
 </style>
