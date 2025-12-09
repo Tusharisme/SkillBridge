@@ -68,6 +68,35 @@ def create_app(config_name='default'):
         skill = Skill.query.get_or_404(skill_id)
         return jsonify(skill.to_dict())
 
+    @app.route('/api/skills/<int:skill_id>', methods=['PUT'])
+    @auth_required("token")
+    def update_skill(skill_id):
+        from models import Skill
+        skill = Skill.query.get_or_404(skill_id)
+        if skill.instructor_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+            
+        data = request.get_json()
+        if 'name' in data:
+            skill.name = data['name']
+        if 'description' in data:
+            skill.description = data['description']
+            
+        db.session.commit()
+        return jsonify(skill.to_dict())
+
+    @app.route('/api/skills/<int:skill_id>', methods=['DELETE'])
+    @auth_required("token")
+    def delete_skill(skill_id):
+        from models import Skill
+        skill = Skill.query.get_or_404(skill_id)
+        if skill.instructor_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+            
+        db.session.delete(skill)
+        db.session.commit()
+        return jsonify({'message': 'Skill deleted'})
+
     # Dashboard Endpoint
     @app.route('/api/dashboard', methods=['GET'])
     @auth_required("token")
