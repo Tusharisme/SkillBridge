@@ -1,8 +1,9 @@
-<script setup>
+import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 
 const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
 </script>
 
 <template>
@@ -14,7 +15,7 @@ const authStore = useAuthStore()
           <RouterLink to="/">Home</RouterLink>
           <RouterLink to="/about">About</RouterLink>
           
-          <template v-if="!authStore.isAuthenticated">
+          <template v-if="!isAuthenticated">
             <RouterLink to="/login" class="btn-login">Login</RouterLink>
           </template>
           

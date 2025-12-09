@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
+    user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
     authError: null
   }),
@@ -31,6 +31,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = token
         this.user = user
         localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
         
         // Set default axios header
         axios.defaults.headers.common['Authentication-Token'] = token
@@ -61,6 +62,7 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.user = null
       localStorage.removeItem('token')
+      localStorage.removeItem('user')
       delete axios.defaults.headers.common['Authentication-Token']
       router.push('/login')
     }
