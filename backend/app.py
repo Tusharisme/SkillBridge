@@ -1,8 +1,10 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from config import config
 from models import db
+from flask_security import auth_required, current_user
+
 
 def create_app(config_name='default'):
     app = Flask(__name__)
@@ -35,7 +37,91 @@ def create_app(config_name='default'):
     def health_check():
         return jsonify({"status": "healthy"})
 
+    # --- Skill API Endpoints ---
+
+    @app.route('/api/skills', methods=['GET'])
+    def get_skills():
+        from models import Skill
+        skills = Skill.query.all()
+        return jsonify([skill.to_dict() for skill in skills])
+
+    @app.route('/api/skills', methods=['POST'])
+    @auth_required("token")
+    def create_skill():
+        from models import Skill
+        data = request.get_json()
+        if not data or 'name' not in data or 'description' not in data:
+            return jsonify({'error': 'Missing name or description'}), 400
+        
+        skill = Skill(
+            name=data['name'],
+            description=data['description'],
+            instructor_id=current_user.id
+        )
+        db.session.add(skill)
+        db.session.commit()
+        return jsonify(skill.to_dict()), 201
+
+    @app.route('/api/skills/<int:skill_id>', methods=['GET'])
+    def get_skill(skill_id):
+        from models import Skill
+        skill = Skill.query.get_or_404(skill_id)
+        return jsonify(skill.to_dict())
+
+    # Dashboard Endpoint
+    @app.route('/api/dashboard', methods=['GET'])
+    @auth_required("token")
+    def get_dashboard_data():
+        from models import Skill
+        # Get skills taught by current user
+        my_skills = Skill.query.filter_by(instructor_id=current_user.id).all()
+        return jsonify({
+            'user': {
+                'email': current_user.email,
+                'full_name': current_user.full_name
+            },
+            'my_skills': [skill.to_dict() for skill in my_skills]
+        })
+
+    # --- Booking Endpoints ---
+
+    @app.route('/api/bookings', methods=['POST'])
+    @auth_required("token")
+    def create_booking():
+        from models import Booking, Skill
+        data = request.get_json()
+        skill_id = data.get('skill_id')
+        
+        skill = Skill.query.get_or_404(skill_id)
+        
+        if skill.instructor_id == current_user.id:
+            return jsonify({'error': 'Cannot book your own skill'}), 400
+            
+        booking = Booking(
+            skill_id=skill_id,
+            student_id=current_user.id
+        )
+        db.session.add(booking)
+        db.session.commit()
+        return jsonify(booking.to_dict()), 201
+
+    @app.route('/api/my-bookings', methods=['GET'])
+    @auth_required("token")
+    def get_my_bookings():
+        from models import Booking, Skill
+        # Bookings I made as a student
+        student_bookings = Booking.query.filter_by(student_id=current_user.id).all()
+        # Bookings received for my skills
+        instructor_bookings = Booking.query.join(Skill).filter(Skill.instructor_id == current_user.id).all()
+        
+        return jsonify({
+            'as_student': [b.to_dict() for b in student_bookings],
+            'as_instructor': [b.to_dict() for b in instructor_bookings]
+        })
+
     return app
+
+
 
 if __name__ == '__main__':
     app = create_app(os.getenv('FLASK_CONFIG') or 'default')

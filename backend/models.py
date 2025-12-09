@@ -42,3 +42,23 @@ class Skill(db.Model):
             'instructor': self.instructor.full_name,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+class Booking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    skill_id = db.Column(db.Integer, db.ForeignKey('skill.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status = db.Column(db.String(20), default='pending') # pending, confirmed, cancelled
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    skill = db.relationship('Skill', backref=db.backref('bookings', lazy=True))
+    student = db.relationship('User', backref=db.backref('bookings', lazy=True))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'skill_name': self.skill.name,
+            'student_name': self.student.full_name,
+            'status': self.status,
+            'created_at': self.created_at.isoformat()
+        }
+
