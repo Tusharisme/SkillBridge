@@ -1,5 +1,6 @@
 import os
 from flask import Flask, jsonify, request, abort
+from sqlalchemy import text
 from flask_cors import CORS
 from config import config
 from models import db
@@ -35,7 +36,12 @@ def create_app(config_name='default'):
 
     @app.route('/api/health')
     def health_check():
-        return jsonify({"status": "healthy"})
+        try:
+            # Check database connection
+            db.session.execute(text('SELECT 1'))
+            return jsonify({"status": "healthy", "database": "connected"}), 200
+        except Exception as e:
+            return jsonify({"status": "unhealthy", "database": str(e)}), 500
 
     @app.route('/api/login', methods=['POST'])
     def api_login():
