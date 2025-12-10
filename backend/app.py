@@ -26,8 +26,30 @@ def create_app(config_name='default'):
         db.create_all()
         
         # Create a test user if not exists
-        if not user_datastore.find_user(email="test@example.com"):
-            user_datastore.create_user(email="test@example.com", password=hash_password("password"), full_name="Test User")
+        # Create a test user if not exists
+        test_user = user_datastore.find_user(email="test@example.com")
+        if not test_user:
+            test_user = user_datastore.create_user(email="test@example.com", password=hash_password("password"), full_name="Test User")
+            db.session.commit()
+        
+        # Seed Skills if none exist
+        from models import Skill
+        if Skill.query.count() == 0:
+            skills_data = [
+                {"name": "Python Programming", "description": "Learn the basics of Python, from variables to data structures."},
+                {"name": "Web Development with Vue", "description": "Build modern, reactive web applications using Vue.js 3."},
+                {"name": "Digital Photography", "description": "Master your DSLR camera and learn composition techniques."},
+                {"name": "Pottery for Beginners", "description": "Hand-building and wheel-throwing techniques for ceramic art."},
+                {"name": "Guitar Fundamentals", "description": "Strumming patterns, chords, and reading tabs for beginners."}
+            ]
+            
+            for skill_info in skills_data:
+                skill = Skill(
+                    name=skill_info['name'],
+                    description=skill_info['description'],
+                    instructor_id=test_user.id
+                )
+                db.session.add(skill)
             db.session.commit()
 
     @app.route('/')
